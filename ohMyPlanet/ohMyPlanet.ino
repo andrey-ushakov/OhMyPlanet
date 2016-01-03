@@ -13,15 +13,6 @@ ModeManager modeManager;
 
 void setup() {
   Serial.begin(115200);
-  pinMode(btnPinGyro, INPUT);
-  pinMode(ledPinGyro, OUTPUT);
-  pinMode(btnPinMode, INPUT);
-  pinMode(ledPinModeR, OUTPUT);
-  pinMode(ledPinModeG, OUTPUT);
-
-  // off led rgb
-  digitalWrite(ledPinModeR, HIGH);
-  digitalWrite(ledPinModeG, HIGH);
   
   modeManager.setup(btnPinMode, ledPinModeR, ledPinModeG);
   gesture.setup(btnPinGyro, ledPinGyro);

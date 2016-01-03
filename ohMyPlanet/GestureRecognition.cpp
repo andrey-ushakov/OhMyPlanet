@@ -34,9 +34,12 @@ void dmpDataReady() {
 
 
 void GestureRecognition::setup(const int btnPinGyro, const int ledPinGyro) {
-
   _btnPinGyro = btnPinGyro;
   _ledPinGyro = ledPinGyro;
+  
+  pinMode(btnPinGyro, INPUT);
+  pinMode(ledPinGyro, OUTPUT);
+  
   
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
