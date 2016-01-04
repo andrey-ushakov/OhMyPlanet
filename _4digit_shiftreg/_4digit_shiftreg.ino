@@ -33,16 +33,14 @@ void setup() {
 }
 
 void loop() {
-  showNumber(1009, true);
+  showNumber(1009);
 }
 
-void showNumber(int num, bool isClear) {
-  if(isClear) {
-    digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, MSBFIRST , 0b00000000);
-    shiftOut(dataPin, clockPin, MSBFIRST , 0b00000000);
-    digitalWrite(latchPin, HIGH);
-  }
+void showNumber(int num) {
+  digitalWrite(latchPin, LOW);
+  shiftOut(dataPin, clockPin, MSBFIRST , 0b00000000);
+  shiftOut(dataPin, clockPin, MSBFIRST , 0b00000000);
+  digitalWrite(latchPin, HIGH);
   
   if(num < 0) return;
 
