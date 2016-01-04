@@ -1,5 +1,4 @@
 #include "ModeManager.h"
-#include <Arduino.h>
 
 void ModeManager::setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG) {
   _btnPinMode   = btnPinMode;

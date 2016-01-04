@@ -1,6 +1,7 @@
 #include "GestureRecognition.h"
-#include "src/ModeManager.cpp"
-#include "src/DisplayManager.cpp"
+#include "ModeManager.h"
+#include "DisplayManager.h"
+#include "ComboManager.h"
 
 const int btnPinGyro  = 3;
 const int ledPinGyro  = 4;

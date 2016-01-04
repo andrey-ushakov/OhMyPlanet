@@ -1,3 +1,5 @@
+#pragma once
+
 const int DIG_1 = 0b00000010;
 const int DIG_2 = 0b00000100;
 const int DIG_3 = 0b00001000;
