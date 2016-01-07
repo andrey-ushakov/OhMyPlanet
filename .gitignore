@@ -5,3 +5,8 @@ application.linux64
 application.windows32
 application.windows64
 application.macosx
+
+Unreal/Build/*
+Unreal/Saved/*
+Unreal/Intermediate/*
+Unreal/DerivedDataCache/*
