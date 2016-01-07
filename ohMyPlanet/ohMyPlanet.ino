@@ -1,6 +1,6 @@
+#include <Multiplex7Seg4Digit.h>
 #include "GestureRecognition.h"
 #include "ModeManager.h"
-#include "DisplayManager.h"
 #include "ComboManager.h"
 
 const int btnPinGyro  = 3;
@@ -16,12 +16,11 @@ const int dataPin = 11;
 
 GestureRecognition gesture;
 ModeManager modeManager;
-DisplayManager displayManager;
+Multiplex7Seg4Digit disp(latchPin, clockPin, dataPin);
 
 void setup() {
   Serial.begin(115200);
   
-  displayManager.setup(latchPin, clockPin, dataPin);
   modeManager.setup(btnPinMode, ledPinModeR, ledPinModeG);
   gesture.setup(btnPinGyro, ledPinGyro);
 }
@@ -30,7 +29,7 @@ void setup() {
 void loop() {
   modeManager.run();
   gesture.run();
-  displayManager.showNumber(1234);
+  disp.displayNum(9876);
 }
 
 
