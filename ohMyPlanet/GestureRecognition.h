@@ -1,6 +1,7 @@
 #pragma once
 
 #include "I2Cdev.h"
+#include "SpeakerManager.h"
 
 #define MAX_COMBO_LENGTH 4
 
@@ -11,7 +12,7 @@
 
 class GestureRecognition {
   public:
-    void setup(const int btnPinGyro, const int ledPinGyro);
+    void setup(const int btnPinGyro, const int ledPinGyro, SpeakerManager speaker);
     void run();
     // true if recognized 4 gestures
     bool isComboAvailaible();
@@ -19,9 +20,9 @@ class GestureRecognition {
     int* getCombo();
 
   private:
-    //void dmpDataReady();
     int _btnPinGyro;
     int _ledPinGyro;
+    SpeakerManager _speaker;
 
     int _comboArr[MAX_COMBO_LENGTH];       // gestures sequence
     int _comboLength = 0;   // number of recognized gestures

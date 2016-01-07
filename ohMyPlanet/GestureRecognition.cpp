@@ -33,9 +33,10 @@ void dmpDataReady() {
 }
 
 
-void GestureRecognition::setup(const int btnPinGyro, const int ledPinGyro) {
+void GestureRecognition::setup(const int btnPinGyro, const int ledPinGyro, SpeakerManager speaker) {
   _btnPinGyro = btnPinGyro;
   _ledPinGyro = ledPinGyro;
+  _speaker = speaker;
   
   pinMode(btnPinGyro, INPUT);
   pinMode(ledPinGyro, OUTPUT);
@@ -166,6 +167,7 @@ void GestureRecognition::analyseData() {
   Serial.println(ypr[2] * 180/M_PI);*/
     
   if(!isBtnGyroPressed && digitalRead(_btnPinGyro) == HIGH ) { // btn pressed 1st time
+    //_speaker.setMelody(MELODY_WIN);
     isBtnGyroPressed = true;
     digitalWrite(_ledPinGyro, LOW);
     // clear gesture array
