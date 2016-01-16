@@ -18,20 +18,21 @@ const int dataPin = 11;
 GestureRecognition gesture;
 ModeManager modeManager;
 Multiplex7Seg4Digit disp(latchPin, clockPin, dataPin);
-Spaceship spaceship;
+Spaceship *spaceship = new Spaceship();
 
 void setup() {
   Serial.begin(115200);
   
-  modeManager.setup(btnPinMode, ledPinModeR, ledPinModeG);
+  modeManager.setup(btnPinMode, ledPinModeR, ledPinModeG, spaceship);
   gesture.setup(btnPinGyro, ledPinGyro);
+  modeManager.setMode(spaceship->isFriendlyMode());
 }
 
 
 void loop() {
   modeManager.run();
   gesture.run();
-  disp.displayNum(spaceship.resources());
+  disp.displayNum(spaceship->resources());
 }
 
 

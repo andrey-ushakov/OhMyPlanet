@@ -5,6 +5,7 @@
 struct Spaceship_t {
     int id;
     int resources;
+    bool isFriendlyMode;
 };
 
 
@@ -13,6 +14,9 @@ class Spaceship {
 		Spaceship();
 		int id();
 		int resources();
+		bool isFriendlyMode();
+
+    	void setFriendlyMode(bool isFriendlyMode);
 
 	private:
 	void initSpaceship();

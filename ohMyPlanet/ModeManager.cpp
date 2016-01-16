@@ -1,9 +1,10 @@
 #include "ModeManager.h"
 
-void ModeManager::setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG) {
+void ModeManager::setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG, Spaceship *spaceship) {
   _btnPinMode   = btnPinMode;
   _ledPinModeR  = ledPinModeR;
   _ledPinModeG  = ledPinModeG;
+  _spaceship    = spaceship;
 
   pinMode(btnPinMode, INPUT);
   pinMode(ledPinModeR, OUTPUT);
@@ -22,6 +23,8 @@ void ModeManager::run() {
   if (_reading == HIGH && _previous == LOW && millis() - _time > _debounce) {
     _isFriendlyMode = !_isFriendlyMode;
     _time = millis();
+    // save current mode
+    _spaceship->setFriendlyMode(_isFriendlyMode);
   }
 
   if(_isFriendlyMode) {
@@ -47,6 +50,6 @@ void ModeManager::turnUnfriendlyMode() {
 }
 
 
-bool ModeManager::isFriendlyMode() {
-  return _isFriendlyMode;
+void ModeManager::setMode(bool isFriendlyMode) {
+  _isFriendlyMode = isFriendlyMode;
 }
