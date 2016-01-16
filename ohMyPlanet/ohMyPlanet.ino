@@ -2,6 +2,7 @@
 #include "GestureRecognition.h"
 #include "ModeManager.h"
 #include "ComboManager.h"
+#include "Spaceship.h"
 
 const int btnPinGyro  = 3;
 const int ledPinGyro  = 4;
@@ -17,6 +18,7 @@ const int dataPin = 11;
 GestureRecognition gesture;
 ModeManager modeManager;
 Multiplex7Seg4Digit disp(latchPin, clockPin, dataPin);
+Spaceship spaceship;
 
 void setup() {
   Serial.begin(115200);
@@ -29,7 +31,7 @@ void setup() {
 void loop() {
   modeManager.run();
   gesture.run();
-  disp.displayNum(9876);
+  disp.displayNum(spaceship.resources());
 }
 
 
