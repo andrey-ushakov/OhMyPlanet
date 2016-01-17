@@ -2,10 +2,11 @@
 
 #include <Arduino.h>
 #include "Spaceship.h"
+#include "GestureRecognition.h"
 
 class ModeManager {
   public:
-  void setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG, Spaceship *spaceship);
+  void setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG, Spaceship *spaceship, GestureRecognition *gesture);
   void run();
   void setMode(bool isFriendlyMode);
 
@@ -21,6 +22,7 @@ class ModeManager {
   long _debounce = 200;   // the debounce time, increase if the output flickers
 
   Spaceship *_spaceship;
+  GestureRecognition *_gesture;
 
   void turnFriendlyMode();
   void turnUnfriendlyMode();

@@ -1,10 +1,11 @@
 #include "ModeManager.h"
 
-void ModeManager::setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG, Spaceship *spaceship) {
+void ModeManager::setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG, Spaceship *spaceship, GestureRecognition *gesture) {
   _btnPinMode   = btnPinMode;
   _ledPinModeR  = ledPinModeR;
   _ledPinModeG  = ledPinModeG;
   _spaceship    = spaceship;
+  _gesture      = gesture;
 
   pinMode(btnPinMode, INPUT);
   pinMode(ledPinModeR, OUTPUT);
@@ -21,10 +22,12 @@ void ModeManager::run() {
   // to ignore any noise on the circuit, toggle the output pin and remember
   // the time
   if (_reading == HIGH && _previous == LOW && millis() - _time > _debounce) {
-    _isFriendlyMode = !_isFriendlyMode;
-    _time = millis();
-    // save current mode
-    _spaceship->setFriendlyMode(_isFriendlyMode);
+    if( !_gesture->isComboAvailaible() ) {
+      _isFriendlyMode = !_isFriendlyMode;
+      _time = millis();
+      // save current mode
+      _spaceship->setFriendlyMode(_isFriendlyMode);
+    }
   }
 
   if(_isFriendlyMode) {

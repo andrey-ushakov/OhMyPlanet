@@ -33,9 +33,10 @@ void dmpDataReady() {
 }
 
 
-void GestureRecognition::setup(const int btnPinGyro, const int ledPinGyro) {
+void GestureRecognition::setup(const int btnPinGyro, const int ledPinGyro, Spaceship *spaceship) {
   _btnPinGyro = btnPinGyro;
   _ledPinGyro = ledPinGyro;
+  _spaceship = spaceship;
   
   pinMode(btnPinGyro, INPUT);
   pinMode(ledPinGyro, OUTPUT);
@@ -104,7 +105,39 @@ void GestureRecognition::setup(const int btnPinGyro, const int ledPinGyro) {
 }
 
 void GestureRecognition::run() {
+  if(!isBtnGyroPressed && digitalRead(_btnPinGyro) == HIGH ) { // btn pressed 1st time
+    isBtnGyroPressed = true;
+    digitalWrite(_ledPinGyro, LOW);
+    // clear gesture array
+    _comboLength = 0;
+    
+  } else if(isBtnGyroPressed && digitalRead(_btnPinGyro) == HIGH ) { // btn keep pressed...
+    if( !isComboAvailaible() && !_spaceship->isFriendlyMode() ) {
+      analyseData();
+    } else if( isComboAvailaible() ) {
+      digitalWrite(_ledPinGyro, HIGH);
+    }
+    
+  } else if (isBtnGyroPressed && digitalRead(_btnPinGyro) == LOW) { // btn released
+    isBtnGyroPressed = false;
+    Serial.println(digitalRead(_btnPinGyro));
+    if(isComboAvailaible()) {
+      digitalWrite(_ledPinGyro, HIGH);
+    } else {
+      digitalWrite(_ledPinGyro, LOW);
+    }
+  }
+
+
+
+
+
   
+  
+}
+
+
+void GestureRecognition::analyseData() {
   // if programming failed, don't try to do anything
     if (!dmpReady) return;
 
@@ -128,6 +161,7 @@ void GestureRecognition::run() {
 
     // get current FIFO count
     fifoCount = mpu.getFIFOCount();
+    //Serial.println(fifoCount);
 
     // check for overflow (this should never happen unless our code is too inefficient)
     if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
@@ -147,13 +181,12 @@ void GestureRecognition::run() {
         // (this lets us immediately read more without waiting for an interrupt)
         fifoCount -= packetSize;
 
-        
-        analyseData();
+        recognizeGesture();
     }
 }
 
 
-void GestureRecognition::analyseData() {
+void GestureRecognition::recognizeGesture() {
   // display Euler angles in degrees
   mpu.dmpGetQuaternion(&q, fifoBuffer);
   mpu.dmpGetGravity(&gravity, &q);
@@ -164,41 +197,8 @@ void GestureRecognition::analyseData() {
   Serial.print(ypr[1] * 180/M_PI);
   Serial.print("\t");
   Serial.println(ypr[2] * 180/M_PI);*/
-    
-  if(!isBtnGyroPressed && digitalRead(_btnPinGyro) == HIGH ) { // btn pressed 1st time
-    isBtnGyroPressed = true;
-    digitalWrite(_ledPinGyro, LOW);
-    // clear gesture array
-    _comboLength = 0;
 
-    
-  } else if(isBtnGyroPressed && digitalRead(_btnPinGyro) == HIGH ) { // btn keep pressed...
-    if(!isComboAvailaible()) {
-      // TODO GESTURE RECOGNITION
-      recognizeGesture();
-    } else {
-      digitalWrite(_ledPinGyro, HIGH);
-    }
-    
-    
-  } else if (isBtnGyroPressed && digitalRead(_btnPinGyro) == LOW) { // btn released
-    isBtnGyroPressed = false;
-    Serial.println(digitalRead(_btnPinGyro));
-    if(isComboAvailaible()) {
-      digitalWrite(_ledPinGyro, HIGH);
-    } else {
-      digitalWrite(_ledPinGyro, LOW);
-    }
-  }
-
-
-    
   
-  
-}
-
-
-void GestureRecognition::recognizeGesture() {
   int y = ypr[1] * 180/M_PI;
   int z = ypr[2] * 180/M_PI;
   

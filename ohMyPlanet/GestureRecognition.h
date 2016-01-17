@@ -1,6 +1,7 @@
 #pragma once
 
 #include "I2Cdev.h"
+#include "Spaceship.h"
 
 #define MAX_COMBO_LENGTH 4
 
@@ -11,7 +12,7 @@
 
 class GestureRecognition {
   public:
-    void setup(const int btnPinGyro, const int ledPinGyro);
+    void setup(const int btnPinGyro, const int ledPinGyro, Spaceship *spaceship);
     void run();
     // true if recognized 4 gestures
     bool isComboAvailaible();
@@ -22,6 +23,7 @@ class GestureRecognition {
     //void dmpDataReady();
     int _btnPinGyro;
     int _ledPinGyro;
+    Spaceship *_spaceship;
 
     int _comboArr[MAX_COMBO_LENGTH];       // gestures sequence
     int _comboLength = 0;   // number of recognized gestures
