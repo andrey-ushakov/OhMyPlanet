@@ -20,7 +20,6 @@ class GestureRecognition {
     int* getCombo();
 
   private:
-    //void dmpDataReady();
     int _btnPinGyro;
     int _ledPinGyro;
     Spaceship *_spaceship;
