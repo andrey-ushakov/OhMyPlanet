@@ -12,18 +12,18 @@
 #include "ComboManager.h"
 #include "Spaceship.h"
 
-const int btnPinGyro  = 3;
-const int ledPinGyro  = 4;
+const byte btnPinGyro  = 3;
+const byte ledPinGyro  = 4;
 
-const int btnPinMode  = 5;
-const int ledPinModeR = 6;
-const int ledPinModeG = 7;
+const byte btnPinMode  = 5;
+const byte ledPinModeR = 6;
+const byte ledPinModeG = 7;
 
-const int latchPin = A0;
-const int clockPin = A1;
-const int dataPin = A2;
+const byte latchPin = A0;
+const byte clockPin = A1;
+const byte dataPin = A2;
 
-const int btnPinNfc  = 13;
+const byte btnPinNfc  = 13;
 
 Thread nfcThread = Thread();
 
@@ -38,7 +38,7 @@ SNEP nfc(pn532spi);
 
 bool isNfcBtnPressed = false;
 
-int nfcCounter = 0;   // debug variable
+//int nfcCounter = 0;   // debug variable
 void nfcThreadCallback() {
   nfcLoop();
 }
@@ -72,6 +72,7 @@ void loop() {
   }
   
   if( isNfcBtnPressed && (gesture->isComboAvailaible() || spaceship->isFriendlyMode()) ) {
+    disp.clear();
     if(nfcThread.shouldRun())
       nfcThread.run();
   } else {
@@ -82,42 +83,69 @@ void loop() {
 
 
 
-uint8_t ndefBuf[128];
-int16_t result;
+bool isNfcMessageSent     = false;
+bool isNfcMessageReceived = false;
+byte myDamage = 0;
+NdefMessage receivedNdef;
 
 void nfcLoop() {
-  Serial.print(++nfcCounter);
-  
-  result = nfc.poll();
+  int16_t result = nfc.poll();
+  uint8_t ndefBuf[128];
 
   // ::: Client Peer :::
-  if (result == 1) {
-    Serial.println(": Client peer");
+  if (result == 1 && !isNfcMessageSent) {
+    //Serial.println(": Client peer");
     NdefMessage message = buildNdefMessage();
     int messageSize = message.getEncodedSize();
     message.encode(ndefBuf);
     nfc.put(ndefBuf, messageSize); // send character data
 
-    Serial.println("Client : Msg was sent");
+    isNfcMessageSent = true;
+
+    //Serial.println("Client : Msg was sent");
   }
 
   // ::: Server Peer :::
-  else if (result == 2) {
-    Serial.println(": Server peer");
+  else if (result == 2 && !isNfcMessageReceived) {
+    //Serial.println(": Server peer");
     int msgSize = nfc.serve(ndefBuf, sizeof(ndefBuf));
     if (msgSize > 0) {
-        NdefMessage msg  = NdefMessage(ndefBuf, msgSize);
-        msg.print();
-        Serial.println("\nSuccess");
+        receivedNdef  = NdefMessage(ndefBuf, msgSize);
+        receivedNdef.print();
+        isNfcMessageReceived = true;
     } else {
-        Serial.println("failed");
     }
     delay(250);
   }
 
   // ::: Timeout :::
   else{
-    Serial.println(": Timeout");
+    //Serial.println(": Timeout");
+  }
+
+  // NFC communication done
+  if( isNfcMessageSent && isNfcMessageReceived ) {
+    //Serial.println("NFC COMMUNICATION DONE !");
+    boolean otherInFriendlyMode = (boolean)((char)receivedNdef.getRecord(1)._payload[3] - '0');
+    
+    if( !spaceship->isFriendlyMode() && !otherInFriendlyMode ) { // 2 Unfriendly modes
+      //myDamage
+      //Serial.println("2 Unfriendly modes");
+      NdefRecord recDmg = receivedNdef.getRecord(2);
+      byte otherDamage = payloadToString( recDmg._payload, recDmg.getPayloadLength() ).toInt();
+
+      //Serial.print("my: "); Serial.print(myDamage); Serial.print("; oth: ");Serial.println(otherDamage);
+      if(myDamage > otherDamage) {
+        spaceship->addResources(myDamage*10);
+      } else if(myDamage < otherDamage) {
+        spaceship->addResources(-otherDamage*10);
+      }
+    } else if( spaceship->isFriendlyMode() && otherInFriendlyMode ) { // 2 Friendly modes
+      //Serial.println("2 Friendly modes");
+    }
+    isNfcMessageSent = isNfcMessageReceived = false;
+    isNfcBtnPressed = false;
+    gesture->resetCombo();
   }
   
 }
@@ -125,14 +153,33 @@ void nfcLoop() {
 
 NdefMessage buildNdefMessage() {
   NdefMessage message = NdefMessage();
-  message.addTextRecord( String(spaceship->id()) + ':' + spaceship->nickname() );
+  message.addTextRecord( String(spaceship->id()) );
   message.addTextRecord( String(spaceship->isFriendlyMode()) );
   if( !spaceship->isFriendlyMode() ) {
     Combo usedCombo = comboManager.getCombo(gesture->getCombo());
-    int dmg = random(usedCombo.range.min, usedCombo.range.max + 1);
-    message.addTextRecord( String(dmg) + ':' + usedCombo.name );
+    myDamage = random(usedCombo.range.min, usedCombo.range.max + 1);
+    message.addTextRecord( String(myDamage) );
   }
 
+  message.print();
+  //Serial.println("------------");
   return message;
 }
 
+
+// removes first 3 characters ('.en')
+String payloadToString(byte array[], byte len) {
+  if(len <= 3) {
+    return "";
+  }
+  char resStr[len-3+1];
+
+  for (byte szPos=3; szPos < len; szPos++) {
+    if (array[szPos] <= 0x1F)
+      resStr[szPos-3] = '.';
+    else
+      resStr[szPos-3] = (char)array[szPos];
+  }
+  resStr[len-3] = '\0';
+  return String(resStr);
+}

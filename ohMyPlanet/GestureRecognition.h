@@ -12,20 +12,21 @@
 
 class GestureRecognition {
   public:
-    void setup(const int btnPinGyro, const int ledPinGyro, Spaceship *spaceship);
+    void setup(const byte btnPinGyro, const byte ledPinGyro, Spaceship *spaceship);
     void run();
     // true if recognized 4 gestures
     bool isComboAvailaible();
     // return combo array
-    int* getCombo();
+    byte* getCombo();
+    void resetCombo();
 
   private:
-    int _btnPinGyro;
-    int _ledPinGyro;
+    byte _btnPinGyro;
+    byte _ledPinGyro;
     Spaceship *_spaceship;
 
-    int _comboArr[MAX_COMBO_LENGTH];       // gestures sequence
-    int _comboLength = 0;   // number of recognized gestures
+    byte _comboArr[MAX_COMBO_LENGTH];       // gestures sequence
+    byte _comboLength = 0;   // number of recognized gestures
 
     bool _isNoGesture = false;
 

@@ -1,6 +1,6 @@
 #include "ModeManager.h"
 
-void ModeManager::setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG, Spaceship *spaceship, GestureRecognition *gesture) {
+void ModeManager::setup(const byte btnPinMode, const byte ledPinModeR, const byte ledPinModeG, Spaceship *spaceship, GestureRecognition *gesture) {
   _btnPinMode   = btnPinMode;
   _ledPinModeR  = ledPinModeR;
   _ledPinModeG  = ledPinModeG;

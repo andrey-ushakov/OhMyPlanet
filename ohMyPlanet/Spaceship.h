@@ -3,23 +3,21 @@
 #include "EEPROMMemory.h"
 
 struct Spaceship_t {
-    int id;
+    unsigned char id;
     int resources;
     bool isFriendlyMode;
-    char nickname[16];
-    //int nicknameLength;
 };
 
 
 class Spaceship {
 	public:
 		Spaceship();
-		int id();
+		unsigned char id();
 		int resources();
     bool isFriendlyMode();
-    String nickname();
 
     void setFriendlyMode(bool isFriendlyMode);
+    void addResources(int delta);
 
 	private:
 	  void initSpaceship();

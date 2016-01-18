@@ -10,7 +10,7 @@ Spaceship::Spaceship() {
 	EEPROM_read(1, mSpaceship);
 }
 
-int Spaceship::id() {
+unsigned char Spaceship::id() {
 	return mSpaceship.id;
 }
 
@@ -20,10 +20,6 @@ int Spaceship::resources() {
 
 bool Spaceship::isFriendlyMode() {
 	return mSpaceship.isFriendlyMode;
-}
-
-String Spaceship::nickname() {
-  return mSpaceship.nickname;
 }
 
 void Spaceship::setFriendlyMode (bool isFriendlyMode) {
@@ -37,12 +33,16 @@ void Spaceship::initSpaceship() {
 	mSpaceship.id 				    = random(1,256);
 	mSpaceship.resources      = 0;
   mSpaceship.isFriendlyMode = true;
-  strcpy (mSpaceship.nickname,"noname");
-  //mSpaceship.nicknameLength  = strlen(mSpaceship.nickname);
 
 	// write spaceship structure
 	EEPROM_write(1, mSpaceship);
 	// write flag 'ok'
 	EEPROM_write(0, true);
+}
+
+void Spaceship::addResources(int delta) {
+  mSpaceship.resources += delta;
+  // write spaceship structure
+  EEPROM_write(1, mSpaceship);
 }
 
