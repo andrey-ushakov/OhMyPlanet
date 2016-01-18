@@ -22,6 +22,10 @@ bool Spaceship::isFriendlyMode() {
 	return mSpaceship.isFriendlyMode;
 }
 
+String Spaceship::nickname() {
+  return mSpaceship.nickname;
+}
+
 void Spaceship::setFriendlyMode (bool isFriendlyMode) {
 	mSpaceship.isFriendlyMode = isFriendlyMode;
 	// write spaceship structure
@@ -30,10 +34,11 @@ void Spaceship::setFriendlyMode (bool isFriendlyMode) {
 
 void Spaceship::initSpaceship() {
 	// init spaceship structure
-	randomSeed(analogRead(0));
-	mSpaceship.id 				= random(1,256);
-	mSpaceship.resources		= 0;
-	mSpaceship.isFriendlyMode	= true;
+	mSpaceship.id 				    = random(1,256);
+	mSpaceship.resources      = 0;
+  mSpaceship.isFriendlyMode = true;
+  strcpy (mSpaceship.nickname,"noname");
+  //mSpaceship.nicknameLength  = strlen(mSpaceship.nickname);
 
 	// write spaceship structure
 	EEPROM_write(1, mSpaceship);

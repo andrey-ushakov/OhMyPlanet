@@ -6,6 +6,8 @@ struct Spaceship_t {
     int id;
     int resources;
     bool isFriendlyMode;
+    char nickname[16];
+    //int nicknameLength;
 };
 
 
@@ -14,12 +16,13 @@ class Spaceship {
 		Spaceship();
 		int id();
 		int resources();
-		bool isFriendlyMode();
+    bool isFriendlyMode();
+    String nickname();
 
-    	void setFriendlyMode(bool isFriendlyMode);
+    void setFriendlyMode(bool isFriendlyMode);
 
 	private:
-	void initSpaceship();
+	  void initSpaceship();
 
 	Spaceship_t mSpaceship;
 };
