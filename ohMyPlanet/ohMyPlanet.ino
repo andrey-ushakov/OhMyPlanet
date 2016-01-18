@@ -50,7 +50,7 @@ void setup() {
   
   pinMode(btnPinNfc, INPUT);
 
-  spaceship = new Spaceship();
+  spaceship = new Spaceship();    // init after randomSeed for random id generation
   
   gesture->setup(btnPinGyro, ledPinGyro, spaceship);
   modeManager->setup(btnPinMode, ledPinModeR, ledPinModeG, spaceship, gesture);
@@ -66,12 +66,6 @@ void loop() {
   modeManager->run();
   gesture->run();
   disp.displayNum(spaceship->resources());
-  //Serial.println(spaceship->id());
-
-  /*if( gesture->isComboAvailaible() || spaceship->isFriendlyMode() ) {
-    if(nfcThread.shouldRun())
-      nfcThread.run();
-  }*/
 
   if(digitalRead(btnPinNfc) == HIGH && !isNfcBtnPressed) { // btn NFC was pressed
     isNfcBtnPressed = true;
@@ -88,14 +82,8 @@ void loop() {
 
 
 
-uint8_t header[] = {0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d, 0x3a, 0x00};
-
 uint8_t ndefBuf[128];
-uint8_t bufferMsg[128];
-int msgLength = 0;
 int16_t result;
-uint8_t length;
-int16_t length16;
 
 void nfcLoop() {
   Serial.print(++nfcCounter);
@@ -105,18 +93,11 @@ void nfcLoop() {
   // ::: Client Peer :::
   if (result == 1) {
     Serial.println(": Client peer");
-    //NdefMessage message = NdefMessage();
-    //message.addTextRecord("hello world!");
     NdefMessage message = buildNdefMessage();
     int messageSize = message.getEncodedSize();
     message.encode(ndefBuf);
     nfc.put(ndefBuf, messageSize); // send character data
-    
-    /*bufferMsg[0] = spaceship->id();
-    msgLength = 1;
-    length = setCharNdef(ndefBuf, bufferMsg, msgLength*sizeof(uint8_t));
-    nfc.put(ndefBuf, length); // send character data
-    */
+
     Serial.println("Client : Msg was sent");
   }
 
@@ -131,49 +112,14 @@ void nfcLoop() {
     } else {
         Serial.println("failed");
     }
-    /*length16 = nfc.serve(ndefBuf, sizeof(ndefBuf)); // get peer character data
-    if(length16 > 0) {
-      //print_ndef(ndefBuf, length16);
-      print_ndef_payload(ndefBuf, length16);
-    }*/
     delay(250);
   }
 
   // ::: Timeout :::
   else{
     Serial.println(": Timeout");
-    //isNfcBtnPressed = false;      // break NFC communication
   }
   
-  //delay(250);
-  
-}
-
-
-uint8_t setCharNdef(uint8_t *buffer, const uint8_t *character, uint8_t length) {
-  buffer[0] = 0xD4;
-  buffer[1] = sizeof(header);
-  buffer[2] = length;
-  
-  header[buffer[1] - 1] = 0x43;
-  
-  memcpy(buffer + 3, header, buffer[1]);
-  memcpy(buffer + 3 + buffer[1], character, buffer[2]);
-  
-  return 3 + buffer[1] + buffer[2];
-}
-
-void print_ndef_payload(const uint8_t *buffer, uint8_t length) {
-  NdefMessage message = NdefMessage(buffer, length);
-  NdefRecord record = message.getRecord(0);
-  int len = record.getPayloadLength();
-  for (int szPos=0; szPos < len; szPos++) {
-    if (record._payload[szPos] <= 0x1F)
-      Serial.print(".");
-    else
-      Serial.print((char)record._payload[szPos]);
-  }
-  Serial.println("");
 }
 
 
