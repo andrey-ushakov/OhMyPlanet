@@ -136,9 +136,9 @@ void nfcLoop() {
 
       //Serial.print("my: "); Serial.print(myDamage); Serial.print("; oth: ");Serial.println(otherDamage);
       if(myDamage > otherDamage) {
-        spaceship->addResources(myDamage*10);
+        spaceship->addResources(myDamage*100);
       } else if(myDamage < otherDamage) {
-        spaceship->addResources(-otherDamage*10);
+        spaceship->addResources(-otherDamage*100);
       }
     } else if( spaceship->isFriendlyMode() && otherInFriendlyMode ) { // 2 Friendly modes
       //Serial.println("2 Friendly modes");

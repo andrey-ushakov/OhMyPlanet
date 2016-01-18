@@ -28,6 +28,10 @@ void Spaceship::setFriendlyMode (bool isFriendlyMode) {
 	EEPROM_write(1, mSpaceship);
 }
 
+void Spaceship::setResources(int newResources) {
+  mSpaceship.resources = newResources;
+}
+
 void Spaceship::initSpaceship() {
 	// init spaceship structure
 	mSpaceship.id 				    = random(1,256);
@@ -41,7 +45,13 @@ void Spaceship::initSpaceship() {
 }
 
 void Spaceship::addResources(int delta) {
-  mSpaceship.resources += delta;
+  if(mSpaceship.resources + delta >= 9999)
+    mSpaceship.resources = 9999;
+  else if(mSpaceship.resources + delta <= 0)
+    mSpaceship.resources = 0;
+  else
+    mSpaceship.resources += delta;
+    
   // write spaceship structure
   EEPROM_write(1, mSpaceship);
 }

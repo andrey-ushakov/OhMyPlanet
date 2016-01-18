@@ -18,6 +18,7 @@ class Spaceship {
 
     void setFriendlyMode(bool isFriendlyMode);
     void addResources(int delta);
+    void setResources(int newResources);
 
 	private:
 	  void initSpaceship();
