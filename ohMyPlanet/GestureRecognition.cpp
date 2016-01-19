@@ -110,7 +110,7 @@ void GestureRecognition::run() {
     resetCombo();
     
   } else if(isBtnGyroPressed && digitalRead(_btnPinGyro) == HIGH ) { // btn keep pressed...
-    if( !isComboAvailaible() && !_spaceship->isFriendlyMode() ) {
+    if( !isComboAvailaible() && !_spaceship->isFriendlyMode() && !_spaceship->resources() > 700 ) {
       analyseData();
     } else if( isComboAvailaible() ) {
       digitalWrite(_ledPinGyro, HIGH);

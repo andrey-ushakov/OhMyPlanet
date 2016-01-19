@@ -6,6 +6,12 @@ struct Spaceship_t {
     unsigned char id;
     int resources;
     bool isFriendlyMode;
+
+    // for prototype we can have maximum 2 friends
+    unsigned char slot1_id;
+    unsigned char slot1_frPoints;     // 0..255 pts for prototype
+    unsigned char slot2_id;
+    unsigned char slot2_frPoints;     // 0..255 pts for prototype
 };
 
 
