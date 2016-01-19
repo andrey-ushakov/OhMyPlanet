@@ -1,9 +1,11 @@
 #include "ModeManager.h"
 
-void ModeManager::setup(const int btnPinMode, const int ledPinModeR, const int ledPinModeG) {
+void ModeManager::setup(const byte btnPinMode, const byte ledPinModeR, const byte ledPinModeG, Spaceship *spaceship, GestureRecognition *gesture) {
   _btnPinMode   = btnPinMode;
   _ledPinModeR  = ledPinModeR;
   _ledPinModeG  = ledPinModeG;
+  _spaceship    = spaceship;
+  _gesture      = gesture;
 
   pinMode(btnPinMode, INPUT);
   pinMode(ledPinModeR, OUTPUT);
@@ -20,8 +22,12 @@ void ModeManager::run() {
   // to ignore any noise on the circuit, toggle the output pin and remember
   // the time
   if (_reading == HIGH && _previous == LOW && millis() - _time > _debounce) {
-    _isFriendlyMode = !_isFriendlyMode;
-    _time = millis();
+    if( !_gesture->isComboAvailaible() ) {
+      _isFriendlyMode = !_isFriendlyMode;
+      _time = millis();
+      // save current mode
+      _spaceship->setFriendlyMode(_isFriendlyMode);
+    }
   }
 
   if(_isFriendlyMode) {
@@ -37,16 +43,16 @@ void ModeManager::run() {
 
 void ModeManager::turnFriendlyMode() {
   digitalWrite(_ledPinModeR, HIGH);
-  digitalWrite(_ledPinModeG, LOW);
+  analogWrite(_ledPinModeG, 250);
 }
 
 
 void ModeManager::turnUnfriendlyMode() {
-  digitalWrite(_ledPinModeR, LOW);
+  analogWrite(_ledPinModeR, 250);
   digitalWrite(_ledPinModeG, HIGH);
 }
 
 
-bool ModeManager::isFriendlyMode() {
-  return _isFriendlyMode;
+void ModeManager::setMode(bool isFriendlyMode) {
+  _isFriendlyMode = isFriendlyMode;
 }
