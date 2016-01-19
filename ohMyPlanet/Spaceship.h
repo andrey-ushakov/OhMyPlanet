@@ -25,6 +25,9 @@ class Spaceship {
     void setFriendlyMode(bool isFriendlyMode);
     void addResources(int delta);
     void setResources(int newResources);
+    void addFriendshipPoints(unsigned char friendId);
+    void reduceFriendshipPoints(unsigned char friendId);
+    String friendshipToString();
 
 	private:
 	  void initSpaceship();

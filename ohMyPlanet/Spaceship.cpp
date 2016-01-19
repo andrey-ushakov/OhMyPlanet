@@ -32,11 +32,54 @@ void Spaceship::setResources(int newResources) {
   mSpaceship.resources = newResources;
 }
 
+void Spaceship::addFriendshipPoints(unsigned char friendId) {
+  if(mSpaceship.slot1_id == 0) {
+    mSpaceship.slot1_id       = friendId;
+    mSpaceship.slot1_frPoints = 10;
+  } else if (mSpaceship.slot1_id == friendId) {
+    mSpaceship.slot1_frPoints++;
+  } else if(mSpaceship.slot2_id == 0) {
+    mSpaceship.slot2_id       = friendId;
+    mSpaceship.slot2_frPoints = 10;
+  } else if (mSpaceship.slot2_id == friendId) {
+    mSpaceship.slot2_frPoints++;
+  }
+  
+  // write spaceship structure
+  EEPROM_write(1, mSpaceship);
+}
+
+void Spaceship::reduceFriendshipPoints(unsigned char friendId) {
+  if(mSpaceship.slot1_id == 0) {
+    mSpaceship.slot1_id       = friendId;
+    mSpaceship.slot1_frPoints = 0;
+  } else if (mSpaceship.slot1_id == friendId) {
+    if(mSpaceship.slot1_frPoints - 1 >= 0)  mSpaceship.slot1_frPoints--;
+  } else if(mSpaceship.slot2_id == 0) {
+    mSpaceship.slot2_id       = friendId;
+    mSpaceship.slot2_frPoints = 0;
+  } else if (mSpaceship.slot2_id == friendId) {
+    if(mSpaceship.slot2_frPoints - 1 >= 0)  mSpaceship.slot2_frPoints--;
+  }
+  
+  // write spaceship structure
+  EEPROM_write(1, mSpaceship);
+}
+
+String Spaceship::friendshipToString() {
+  return String( String(mSpaceship.slot1_id) + ':' + String(mSpaceship.slot1_frPoints) + '&' + String(mSpaceship.slot2_id) + ':' + String(mSpaceship.slot2_frPoints) );
+}
+
 void Spaceship::initSpaceship() {
 	// init spaceship structure
 	mSpaceship.id 				    = random(1,256);
 	mSpaceship.resources      = 0;
   mSpaceship.isFriendlyMode = true;
+
+  mSpaceship.slot1_id          = 0;
+  mSpaceship.slot1_frPoints    = 0;
+  mSpaceship.slot2_id          = 0;
+  mSpaceship.slot2_frPoints    = 0;
 
 	// write spaceship structure
 	EEPROM_write(1, mSpaceship);

@@ -78,6 +78,9 @@ void loop() {
   } else {
     isNfcBtnPressed = false;
   }
+
+  // Unreal data
+  sendDataToSerial();
   
 }
 
@@ -101,8 +104,6 @@ void nfcLoop() {
     nfc.put(ndefBuf, messageSize); // send character data
 
     isNfcMessageSent = true;
-
-    //Serial.println("Client : Msg was sent");
   }
 
   // ::: Server Peer :::
@@ -111,7 +112,7 @@ void nfcLoop() {
     int msgSize = nfc.serve(ndefBuf, sizeof(ndefBuf));
     if (msgSize > 0) {
         receivedNdef  = NdefMessage(ndefBuf, msgSize);
-        receivedNdef.print();
+        //receivedNdef.print();
         isNfcMessageReceived = true;
     } else {
     }
@@ -125,23 +126,23 @@ void nfcLoop() {
 
   // NFC communication done
   if( isNfcMessageSent && isNfcMessageReceived ) {
-    //Serial.println("NFC COMMUNICATION DONE !");
     boolean otherInFriendlyMode = (boolean)((char)receivedNdef.getRecord(1)._payload[3] - '0');
+    NdefRecord recOtherId = receivedNdef.getRecord(0);
+    unsigned char otherId = (unsigned char)(payloadToString(recOtherId._payload, recOtherId.getPayloadLength()).toInt());
     
     if( !spaceship->isFriendlyMode() && !otherInFriendlyMode ) { // 2 Unfriendly modes
       //myDamage
-      //Serial.println("2 Unfriendly modes");
       NdefRecord recDmg = receivedNdef.getRecord(2);
       byte otherDamage = payloadToString( recDmg._payload, recDmg.getPayloadLength() ).toInt();
 
-      //Serial.print("my: "); Serial.print(myDamage); Serial.print("; oth: ");Serial.println(otherDamage);
       if(myDamage > otherDamage) {
         spaceship->addResources(myDamage*100);
       } else if(myDamage < otherDamage) {
         spaceship->addResources(-otherDamage*100);
       }
+      spaceship->reduceFriendshipPoints(otherId);
     } else if( spaceship->isFriendlyMode() && otherInFriendlyMode ) { // 2 Friendly modes
-      //Serial.println("2 Friendly modes");
+      spaceship->addFriendshipPoints(otherId);
     }
     isNfcMessageSent = isNfcMessageReceived = false;
     isNfcBtnPressed = false;
@@ -161,7 +162,7 @@ NdefMessage buildNdefMessage() {
     message.addTextRecord( String(myDamage) );
   }
 
-  message.print();
+  //message.print();
   //Serial.println("------------");
   return message;
 }
@@ -183,3 +184,9 @@ String payloadToString(byte array[], byte len) {
   resStr[len-3] = '\0';
   return String(resStr);
 }
+
+
+void sendDataToSerial() {
+  Serial.println( String(spaceship->id()) + ':' + String(spaceship->resources()) + '&' + spaceship->friendshipToString());
+}
+
