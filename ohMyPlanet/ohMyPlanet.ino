@@ -12,8 +12,8 @@
 #include "ComboManager.h"
 #include "Spaceship.h"
 
-const byte btnPinGyro  = 3;
-const byte ledPinGyro  = 4;
+const byte btnPinGyro  = 4;
+const byte ledPinGyro  = 3;
 
 const byte btnPinMode  = 7;
 const byte ledPinModeR = 6;
