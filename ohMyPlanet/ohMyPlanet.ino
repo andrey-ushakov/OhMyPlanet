@@ -15,9 +15,9 @@
 const byte btnPinGyro  = 3;
 const byte ledPinGyro  = 4;
 
-const byte btnPinMode  = 5;
+const byte btnPinMode  = 7;
 const byte ledPinModeR = 6;
-const byte ledPinModeG = 7;
+const byte ledPinModeG = 5;
 
 const byte latchPin = A0;
 const byte clockPin = A1;

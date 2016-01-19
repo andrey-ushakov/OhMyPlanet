@@ -43,12 +43,12 @@ void ModeManager::run() {
 
 void ModeManager::turnFriendlyMode() {
   digitalWrite(_ledPinModeR, HIGH);
-  digitalWrite(_ledPinModeG, LOW);
+  analogWrite(_ledPinModeG, 250);
 }
 
 
 void ModeManager::turnUnfriendlyMode() {
-  digitalWrite(_ledPinModeR, LOW);
+  analogWrite(_ledPinModeR, 250);
   digitalWrite(_ledPinModeG, HIGH);
 }
 
