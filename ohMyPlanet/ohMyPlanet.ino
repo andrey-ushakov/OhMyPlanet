@@ -190,3 +190,14 @@ void sendDataToSerial() {
   Serial.println( String(spaceship->id()) + ':' + String(spaceship->resources()) + '&' + spaceship->friendshipToString());
 }
 
+
+// Receive new resource number from Unreal
+void serialEvent() {
+  int newResources = 0;
+  while (Serial.available()) {
+    // get the new byte:
+    int incomingByte = (int)Serial.read() - 48;
+    newResources = newResources * 10 + incomingByte;
+  }
+  spaceship->setResources(newResources);
+}
