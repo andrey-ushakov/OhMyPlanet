@@ -26,6 +26,7 @@ const byte dataPin = A2;
 const byte btnPinNfc  = 13;
 
 Thread nfcThread = Thread();
+Thread nfcReaderThread = Thread();
 
 GestureRecognition *gesture = new GestureRecognition();
 ModeManager *modeManager = new ModeManager();
@@ -38,9 +39,12 @@ SNEP nfc(pn532spi);
 
 bool isNfcBtnPressed = false;
 
-//int nfcCounter = 0;   // debug variable
 void nfcThreadCallback() {
   nfcLoop();
+}
+
+void nfcReaderThreadCallback() {
+  nfcReaderLoop();
 }
 
 
@@ -58,6 +62,9 @@ void setup() {
   
   nfcThread.onRun(nfcThreadCallback);
   nfcThread.setInterval(500);
+
+  nfcReaderThread.onRun(nfcReaderThreadCallback);
+  nfcReaderThread.setInterval(500);
 }
 
 
@@ -72,15 +79,23 @@ void loop() {
   }
   
   if( isNfcBtnPressed && (gesture->isComboAvailaible() || spaceship->isFriendlyMode()) ) {
+    // :: Connect to the figurine
     disp.clear();
     if(nfcThread.shouldRun())
       nfcThread.run();
-  } else {
+  } else if( isNfcBtnPressed && !gesture->isComboAvailaible() && !spaceship->isFriendlyMode() ) {
+    // :: Connect to the reader
+    disp.clear();
+    if(nfcReaderThread.shouldRun())
+      nfcReaderThread.run();
+  }
+  else {
     isNfcBtnPressed = false;
   }
 
+  //todo remove
   // Unreal data
-  sendDataToSerial();
+  //sendDataToSerial();
   
 }
 
@@ -152,6 +167,59 @@ void nfcLoop() {
 }
 
 
+int failuresCnt = 0;
+
+void nfcReaderLoop() {
+  int16_t result = nfc.poll(2000);
+  uint8_t ndefBuf[128];
+
+  // ::: Client Peer :::
+  if (result == 1 ) {
+    //Serial.println(": Client peer");
+    NdefMessage message = buildNdefReaderMessage();
+    int messageSize = message.getEncodedSize();
+    message.encode(ndefBuf);
+    int res = nfc.put(ndefBuf, messageSize); // send character data
+    if(res > 0) {
+      failuresCnt = 0;      
+    }
+    
+  }
+
+  // ::: Server Peer :::
+  else if (result == 2 ) {
+    //Serial.println(": Server peer");
+    int msgSize = nfc.serve(ndefBuf, sizeof(ndefBuf));
+    if (msgSize > 0) {
+        failuresCnt = 0;
+        
+        receivedNdef  = NdefMessage(ndefBuf, msgSize);
+        receivedNdef.print();
+        // get new resource number
+        int newResources = (payloadToString(receivedNdef.getRecord(0)._payload, receivedNdef.getRecord(0).getPayloadLength()).toInt());
+        if(newResources >= 0) {
+          spaceship->setResources(newResources);
+        }
+    }
+    
+    delay(250);
+  }
+
+  // ::: Timeout :::
+  else{
+    //Serial.println("Timeout");
+    // Count failures to disconnect from reader
+    failuresCnt++;
+
+    if(failuresCnt == 3) {    // max failures time before disconnect
+      isNfcBtnPressed = false;
+      failuresCnt = 0;
+    }
+  }
+  
+}
+
+
 NdefMessage buildNdefMessage() {
   NdefMessage message = NdefMessage();
   message.addTextRecord( String(spaceship->id()) );
@@ -161,11 +229,16 @@ NdefMessage buildNdefMessage() {
     myDamage = random(usedCombo.range.min, usedCombo.range.max + 1);
     message.addTextRecord( String(myDamage) );
   }
-
-  //message.print();
-  //Serial.println("------------");
   return message;
 }
+
+
+NdefMessage buildNdefReaderMessage() {
+  NdefMessage message = NdefMessage();
+  message.addTextRecord( String(spaceship->id()) + ':' + String(spaceship->resources()) + '&' + spaceship->friendshipToString() );
+  return message;
+}
+
 
 
 // removes first 3 characters ('.en')
@@ -185,14 +258,14 @@ String payloadToString(byte array[], byte len) {
   return String(resStr);
 }
 
-
-void sendDataToSerial() {
+// tode remove
+/*void sendDataToSerial() {
   Serial.println( String(spaceship->id()) + ':' + String(spaceship->resources()) + '&' + spaceship->friendshipToString());
-}
+}*/
 
-
+// todo remove
 // Receive new resource number from Unreal
-void serialEvent() {
+/*void serialEvent() {
   int newResources = 0;
   while (Serial.available()) {
     // get the new byte:
@@ -200,4 +273,4 @@ void serialEvent() {
     newResources = newResources * 10 + incomingByte;
   }
   spaceship->setResources(newResources);
-}
+}*/
