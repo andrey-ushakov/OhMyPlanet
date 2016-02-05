@@ -33,6 +33,7 @@ void loop() {
 }
 
 
+int timeoutCnt = 0;
 
 void nfcReaderLoop() {
   int16_t result = nfc.poll(2000);
@@ -45,7 +46,10 @@ void nfcReaderLoop() {
     
     int messageSize = message.getEncodedSize();
     message.encode(ndefBuf);
-    nfc.put(ndefBuf, messageSize); // send character data
+    int res = nfc.put(ndefBuf, messageSize); // send character data
+    if(res > 0) {
+      timeoutCnt = 0;
+    }
   }
 
   // ::: Server Peer :::
@@ -64,6 +68,12 @@ void nfcReaderLoop() {
   // ::: Timeout :::
   else{
     Serial.println("disconnected");
+    timeoutCnt++;
+
+    if(timeoutCnt == 3) {    // max failures time before disconnect
+      resources = -1;
+      timeoutCnt = 0;
+    }
   }
 }
 

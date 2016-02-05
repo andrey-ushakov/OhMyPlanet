@@ -92,11 +92,6 @@ void loop() {
   else {
     isNfcBtnPressed = false;
   }
-
-  //todo remove
-  // Unreal data
-  //sendDataToSerial();
-  
 }
 
 
@@ -167,7 +162,7 @@ void nfcLoop() {
 }
 
 
-int failuresCnt = 0;
+int timeoutCnt = 0;
 
 void nfcReaderLoop() {
   int16_t result = nfc.poll(2000);
@@ -181,7 +176,7 @@ void nfcReaderLoop() {
     message.encode(ndefBuf);
     int res = nfc.put(ndefBuf, messageSize); // send character data
     if(res > 0) {
-      failuresCnt = 0;      
+      timeoutCnt = 0;
     }
     
   }
@@ -191,7 +186,7 @@ void nfcReaderLoop() {
     //Serial.println(": Server peer");
     int msgSize = nfc.serve(ndefBuf, sizeof(ndefBuf));
     if (msgSize > 0) {
-        failuresCnt = 0;
+        timeoutCnt = 0;
         
         receivedNdef  = NdefMessage(ndefBuf, msgSize);
         receivedNdef.print();
@@ -199,6 +194,7 @@ void nfcReaderLoop() {
         int newResources = (payloadToString(receivedNdef.getRecord(0)._payload, receivedNdef.getRecord(0).getPayloadLength()).toInt());
         if(newResources >= 0) {
           spaceship->setResources(newResources);
+          timeoutCnt = 0;
         }
     }
     
@@ -209,11 +205,11 @@ void nfcReaderLoop() {
   else{
     //Serial.println("Timeout");
     // Count failures to disconnect from reader
-    failuresCnt++;
+    timeoutCnt++;
 
-    if(failuresCnt == 3) {    // max failures time before disconnect
+    if(timeoutCnt == 3) {    // max failures time before disconnect
       isNfcBtnPressed = false;
-      failuresCnt = 0;
+      timeoutCnt = 0;
     }
   }
   
@@ -257,20 +253,3 @@ String payloadToString(byte array[], byte len) {
   resStr[len-3] = '\0';
   return String(resStr);
 }
-
-// tode remove
-/*void sendDataToSerial() {
-  Serial.println( String(spaceship->id()) + ':' + String(spaceship->resources()) + '&' + spaceship->friendshipToString());
-}*/
-
-// todo remove
-// Receive new resource number from Unreal
-/*void serialEvent() {
-  int newResources = 0;
-  while (Serial.available()) {
-    // get the new byte:
-    int incomingByte = (int)Serial.read() - 48;
-    newResources = newResources * 10 + incomingByte;
-  }
-  spaceship->setResources(newResources);
-}*/
