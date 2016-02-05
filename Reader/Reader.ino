@@ -63,6 +63,7 @@ void nfcReaderLoop() {
 
   // ::: Timeout :::
   else{
+    Serial.println("disconnected");
   }
 }
 
@@ -71,25 +72,13 @@ void nfcReaderLoop() {
 // Receive new resource number from Unreal (from Serial port)
 void serialEvent() {
   int newResources = 0;
-  while (Serial.available()) {
-    // get the new byte:
-    int incomingByte = (int)Serial.read() - 48;
-    newResources = newResources * 10 + incomingByte;
-  }
-  resources = newResources;
-}
-/*void serialEvent() {
-  int newResources = 0;
   if (Serial.available()) {
-    char serialdata[80];
-    Serial.readBytesUntil('#', serialdata, 80);
-    Serial.println(serialdata);
-    // get the new byte:
-    //int incomingByte = (int)Serial.read() - 48;
-    //newResources = newResources * 10 + incomingByte;
+    char serialdata[10];
+    int numBytes = Serial.readBytesUntil('\n', serialdata, sizeof(serialdata));
+    serialdata[numBytes] = '\0';
+    resources = String(serialdata).toInt();
   }
-  resources = 11;//newResources;
-}*/
+}
 
 
 
