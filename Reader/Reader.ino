@@ -53,9 +53,10 @@ void nfcReaderLoop() {
     int msgSize = nfc.serve(ndefBuf, sizeof(ndefBuf));
     if (msgSize > 0) {
         receivedNdef  = NdefMessage(ndefBuf, msgSize);
-        receivedNdef.print();
+        //receivedNdef.print();
         
-        // !!! TODO parse NdefMessage : print payload to Serial.
+        String data = payloadToString( receivedNdef.getRecord(0)._payload, receivedNdef.getRecord(0).getPayloadLength() );
+        Serial.println(data);
     }
     delay(250);
   }
@@ -76,4 +77,35 @@ void serialEvent() {
     newResources = newResources * 10 + incomingByte;
   }
   resources = newResources;
+}
+/*void serialEvent() {
+  int newResources = 0;
+  if (Serial.available()) {
+    char serialdata[80];
+    Serial.readBytesUntil('#', serialdata, 80);
+    Serial.println(serialdata);
+    // get the new byte:
+    //int incomingByte = (int)Serial.read() - 48;
+    //newResources = newResources * 10 + incomingByte;
+  }
+  resources = 11;//newResources;
+}*/
+
+
+
+// removes first 3 characters ('.en')
+String payloadToString(byte array[], byte len) {
+  if(len <= 3) {
+    return "";
+  }
+  char resStr[len-3+1];
+
+  for (byte szPos=3; szPos < len; szPos++) {
+    if (array[szPos] <= 0x1F)
+      resStr[szPos-3] = '.';
+    else
+      resStr[szPos-3] = (char)array[szPos];
+  }
+  resStr[len-3] = '\0';
+  return String(resStr);
 }
