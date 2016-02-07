@@ -17,7 +17,7 @@ Figurine Components:
 - 3 x 10k Ohm resistors for buttons
 - 7 x 220 Ohm resistors for LEDs
 
-NFC Reader Compomnents:
+NFC Reader Components:
 - 1 x Arduino UNO
 - 1 x Seeed Studio NFC Shield
 
