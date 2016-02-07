@@ -29,6 +29,8 @@ void Spaceship::setFriendlyMode (bool isFriendlyMode) {
 }
 
 void Spaceship::setResources(int newResources) {
+  //Serial.println("setResources: ");
+  //Serial.print(newResources);
   mSpaceship.resources = newResources;
 }
 
@@ -88,6 +90,7 @@ void Spaceship::initSpaceship() {
 }
 
 void Spaceship::addResources(int delta) {
+  //Serial.println("add ressources");
   if(mSpaceship.resources + delta >= 9999)
     mSpaceship.resources = 9999;
   else if(mSpaceship.resources + delta <= 0)

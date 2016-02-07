@@ -5,13 +5,13 @@
 #include "snep.h"
 #include "NdefMessage.h"
 
-
 #include <Multiplex7Seg4Digit.h>
 #include "GestureRecognition.h"
 #include "ModeManager.h"
 #include "ComboManager.h"
 #include "Spaceship.h"
 
+// Hardware components connection
 const byte btnPinGyro  = 4;
 const byte ledPinGyro  = 3;
 
@@ -19,14 +19,25 @@ const byte btnPinMode  = 7;
 const byte ledPinModeR = 6;
 const byte ledPinModeG = 5;
 
-const byte latchPin = A0;
-const byte clockPin = A1;
-const byte dataPin = A2;
+const byte latchPin   = A0;
+const byte clockPin   = A1;
+const byte dataPin    = A2;
 
 const byte btnPinNfc  = 13;
 
+
+// NFC variables
 Thread nfcThread = Thread();
 Thread nfcReaderThread = Thread();
+PN532_SPI pn532spi(SPI, 10);
+SNEP nfc(pn532spi);
+bool isNfcBtnPressed      = false;
+bool isNfcMessageSent     = false;
+bool isNfcMessageReceived = false;
+byte myDamage = 0;
+NdefMessage receivedNdef;
+int timeoutCnt = 0;
+
 
 GestureRecognition *gesture = new GestureRecognition();
 ModeManager *modeManager = new ModeManager();
@@ -34,10 +45,7 @@ Multiplex7Seg4Digit disp(latchPin, clockPin, dataPin);
 Spaceship *spaceship;
 ComboManager comboManager = ComboManager();
 
-PN532_SPI pn532spi(SPI, 10);
-SNEP nfc(pn532spi);
 
-bool isNfcBtnPressed = false;
 
 void nfcThreadCallback() {
   nfcLoop();
@@ -59,10 +67,12 @@ void setup() {
   gesture->setup(btnPinGyro, ledPinGyro, spaceship);
   modeManager->setup(btnPinMode, ledPinModeR, ledPinModeG, spaceship, gesture);
   modeManager->setMode(spaceship->isFriendlyMode());
-  
+
+  // Thread to communicate with other figurine
   nfcThread.onRun(nfcThreadCallback);
   nfcThread.setInterval(500);
 
+  // Thread to communicate with a reader
   nfcReaderThread.onRun(nfcReaderThreadCallback);
   nfcReaderThread.setInterval(500);
 }
@@ -74,6 +84,7 @@ void loop() {
   gesture->run();
   disp.displayNum(spaceship->resources());
 
+  // NFC Communication
   if(digitalRead(btnPinNfc) == HIGH && !isNfcBtnPressed) { // btn NFC was pressed
     isNfcBtnPressed = true;
   }
@@ -96,11 +107,8 @@ void loop() {
 
 
 
-bool isNfcMessageSent     = false;
-bool isNfcMessageReceived = false;
-byte myDamage = 0;
-NdefMessage receivedNdef;
 
+// NFC communication with other figurine
 void nfcLoop() {
   int16_t result = nfc.poll();
   uint8_t ndefBuf[128];
@@ -162,8 +170,9 @@ void nfcLoop() {
 }
 
 
-int timeoutCnt = 0;
 
+
+// NFC communication with a reader
 void nfcReaderLoop() {
   int16_t result = nfc.poll(2000);
   uint8_t ndefBuf[128];
@@ -188,10 +197,9 @@ void nfcReaderLoop() {
     if (msgSize > 0) {
         timeoutCnt = 0;
         
-        receivedNdef  = NdefMessage(ndefBuf, msgSize);
-        receivedNdef.print();
+        NdefRecord record  = NdefMessage(ndefBuf, msgSize).getRecord(0);
         // get new resource number
-        int newResources = (payloadToString(receivedNdef.getRecord(0)._payload, receivedNdef.getRecord(0).getPayloadLength()).toInt());
+        int newResources = (payloadToString(record._payload, record.getPayloadLength()).toInt());
         if(newResources >= 0) {
           spaceship->setResources(newResources);
           timeoutCnt = 0;
@@ -216,6 +224,9 @@ void nfcReaderLoop() {
 }
 
 
+
+// Helper functions
+
 NdefMessage buildNdefMessage() {
   NdefMessage message = NdefMessage();
   message.addTextRecord( String(spaceship->id()) );
@@ -237,7 +248,7 @@ NdefMessage buildNdefReaderMessage() {
 
 
 
-// removes first 3 characters ('.en')
+// removes first 3 characters('.en') from received NDEF payload record
 String payloadToString(byte array[], byte len) {
   if(len <= 3) {
     return "";
