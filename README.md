@@ -1,11 +1,11 @@
 # OhMyPlanet
 
-Library Dependencies:
+### Library Dependencies:
 - [NFC PN532] (https://github.com/MaxguN/PN532/tree/p2p)
 - [Multiplex7Seg4Digit] (https://github.com/andrey-ushakov/Multiplex7Seg4Digit)
 - [MsTimer2 library](http://playground.arduino.cc/Main/MsTimer2)
 
-Figurine Components:
+### Figurine Components:
 - 1 x Arduino UNO
 - 1 x Seeed Studio NFC Shield
 - 1 x MPU-6050 (Gyroscope & Accelerometer)
@@ -17,10 +17,10 @@ Figurine Components:
 - 3 x 10k Ohm resistors for buttons
 - 7 x 220 Ohm resistors for LEDs
 
-NFC Reader Components:
+### NFC Reader Components:
 - 1 x Arduino UNO
 - 1 x Seeed Studio NFC Shield
 
-Wiring:
+### Wiring:
 ![wiring](https://cloud.githubusercontent.com/assets/12819691/12875320/d0358d52-cde7-11e5-8ef7-a252c07bbd4a.png)
 ![7seg_4dig](https://cloud.githubusercontent.com/assets/12819691/12875319/d01538a4-cde7-11e5-8cb9-40725a4161bd.png)
