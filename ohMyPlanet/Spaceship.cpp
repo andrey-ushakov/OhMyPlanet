@@ -32,6 +32,9 @@ void Spaceship::setResources(int newResources) {
   //Serial.println("setResources: ");
   //Serial.print(newResources);
   mSpaceship.resources = newResources;
+  
+  // write spaceship structure
+  EEPROM_write(1, mSpaceship);
 }
 
 void Spaceship::addFriendshipPoints(unsigned char friendId) {

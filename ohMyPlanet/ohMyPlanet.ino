@@ -200,6 +200,7 @@ void nfcReaderLoop() {
         NdefRecord record  = NdefMessage(ndefBuf, msgSize).getRecord(0);
         // get new resource number
         int newResources = (payloadToString(record._payload, record.getPayloadLength()).toInt());
+        Serial.println(newResources);
         if(newResources >= 0) {
           spaceship->setResources(newResources);
           timeoutCnt = 0;
